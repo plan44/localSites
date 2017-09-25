@@ -35,6 +35,7 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
     statusItem.image = icon
     statusItem.menu = statusMenu
     numStaticMenuItems = statusMenu.items.count
+    refreshMenu() // make sure we display the "no bonjour found" item until bonjour finds something for the first time
     // - about window
     aboutWindow = AboutWindow()
     // - start network service search
