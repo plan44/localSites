@@ -44,6 +44,7 @@
 			children = (
 				EDF1E3CD1F77FE3700D02C38 /* LocalSites */,
 				EDF1E3CC1F77FE3700D02C38 /* Products */,
+				ED637BDD1F790B5D008AAD3A /* README.md */,
 			);
 			sourceTree = "<group>";
 		};
@@ -66,7 +67,6 @@
 				ED637BDA1F78E5EF008AAD3A /* AboutWindow.xib */,
 				EDF1E3D51F77FE3700D02C38 /* Info.plist */,
 				EDF1E3D61F77FE3700D02C38 /* LocalSites.entitlements */,
-				ED637BDD1F790B5D008AAD3A /* README.md */,
 			);
 			path = LocalSites;
 			sourceTree = "<group>";
