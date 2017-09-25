@@ -18,6 +18,7 @@
 /* Begin PBXFileReference section */
 		ED637BD91F78E5EE008AAD3A /* AboutWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutWindow.swift; sourceTree = "<group>"; };
 		ED637BDA1F78E5EF008AAD3A /* AboutWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AboutWindow.xib; sourceTree = "<group>"; };
+		ED637BDD1F790B5D008AAD3A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		EDF1E3CB1F77FE3700D02C38 /* LocalSites.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LocalSites.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDF1E3CE1F77FE3700D02C38 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EDF1E3D01F77FE3700D02C38 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -65,6 +66,7 @@
 				ED637BDA1F78E5EF008AAD3A /* AboutWindow.xib */,
 				EDF1E3D51F77FE3700D02C38 /* Info.plist */,
 				EDF1E3D61F77FE3700D02C38 /* LocalSites.entitlements */,
+				ED637BDD1F790B5D008AAD3A /* README.md */,
 			);
 			path = LocalSites;
 			sourceTree = "<group>";

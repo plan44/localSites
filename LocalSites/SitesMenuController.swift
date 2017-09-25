@@ -111,19 +111,29 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
         print("- '\(service.name)'    -    '\(service.hostName ?? "<none>")'")
       }
     }
-    // sort the services
-    let sortedServices : [NetService] = services.sorted(by: { $0.name.caseInsensitiveCompare($1.name) == .orderedDescending });
     // remove the previous menu items
     for _ in 0..<statusMenu.items.count-numStaticMenuItems {
       statusMenu.removeItem(at: 0)
     }
-    for service in sortedServices {
+    // show new services
+    if (services.count>0) {
+      // sort the services
+      let sortedServices : [NetService] = services.sorted(by: { $0.name.caseInsensitiveCompare($1.name) == .orderedDescending });
+      for service in sortedServices {
+        let item = NSMenuItem();
+        item.title = service.name;
+        item.representedObject = service;
+        item.target = self
+        item.action = #selector(localSiteMenuItemSelected)
+        item.isEnabled = service.hostName != nil
+        statusMenu.insertItem(item, at: 0)
+      }
+    }
+    else {
+      // no bonjour items
       let item = NSMenuItem();
-      item.title = service.name;
-      item.representedObject = service;
-      item.target = self
-      item.action = #selector(localSiteMenuItemSelected)
-      item.isEnabled = service.hostName != nil
+      item.title = "No Bonjour websites found";
+      item.isEnabled = false
       statusMenu.insertItem(item, at: 0)
     }
   }
