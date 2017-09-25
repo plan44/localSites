@@ -11,7 +11,7 @@
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
-        <customObject id="-3" userLabel="Application"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="LocalSites" customModuleProvider="target"/>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
         <customObject id="OO7-7k-kb7" customClass="SitesMenuController" customModule="LocalSites" customModuleProvider="target">
@@ -22,6 +22,12 @@
         <menu id="ofd-Xw-a8y">
             <items>
                 <menuItem isSeparatorItem="YES" id="rd9-Wv-GxQ"/>
+                <menuItem title="About…" id="qLI-Y7-nTG">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="aboutChosen:" target="OO7-7k-kb7" id="9yl-Y9-MTo"/>
+                    </connections>
+                </menuItem>
                 <menuItem title="Quit" id="nWG-5C-IX4">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>

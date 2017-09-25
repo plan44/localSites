@@ -13,7 +13,11 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
 
   @IBOutlet weak var statusMenu: NSMenu!
 
+  let debugOutput = false
+
   let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength);
+
+  var aboutWindow: AboutWindow!
 
   let netServiceBrowser = NetServiceBrowser();
 
@@ -25,13 +29,15 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
 
   override func awakeFromNib() {
     // Initialize the application
+    // - status bar item
     let icon = NSImage(named: NSImage.Name(rawValue: "statusIcon"))
     //icon?.isTemplate = true // just use shape, automatically black in normal and white in dark mode
     statusItem.image = icon
     statusItem.menu = statusMenu
     numStaticMenuItems = statusMenu.items.count
-
-    // start network service search
+    // - about window
+    aboutWindow = AboutWindow()
+    // - start network service search
     netServiceBrowser.delegate = self
     netServiceBrowser.searchForServices(ofType: "_http._tcp", inDomain: "local")
   }
@@ -39,7 +45,7 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
   // MARK: ==== NetServiceBrowser delegate
 
   func netServiceBrowser(_: NetServiceBrowser , didFind service: NetService, moreComing: Bool) {
-    print("didFind '\(service.name)', domain:\(service.domain), hostname:\(service.hostName ?? "<none>") - \(moreComing ? "more coming" : "all done")")
+    if debugOutput { print("didFind '\(service.name)', domain:\(service.domain), hostname:\(service.hostName ?? "<none>") - \(moreComing ? "more coming" : "all done")") }
     services.insert(service)
     service.delegate = self
     service.resolve(withTimeout:2)
@@ -51,7 +57,7 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
 
   func netServiceBrowser(_:NetServiceBrowser, didRemove service: NetService, moreComing: Bool)
   {
-    print("didRemove '\(service.name)' domain:\(service.domain), hostname:\(service.hostName ?? "<none>") - \(moreComing ? "more coming" : "all done")")
+    if debugOutput { print("didRemove '\(service.name)' domain:\(service.domain), hostname:\(service.hostName ?? "<none>") - \(moreComing ? "more coming" : "all done")") }
     services.remove(service)
     if !moreComing {
       refreshMenu()
@@ -61,7 +67,7 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
 
   func netServiceBrowserWillSearch(_:NetServiceBrowser) {
     // Tells the delegate that a search is commencing.
-    print("netServiceBrowserWillSearch")
+    if debugOutput { print("netServiceBrowserWillSearch") }
   }
 
   func netServiceBrowser(_:NetServiceBrowser, didNotSearch errorDict: [String : NSNumber]) {
@@ -71,13 +77,13 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
 
   func netServiceBrowserDidStopSearch(_:NetServiceBrowser) {
     // Tells the delegate that a search was stopped.
-    print("netServiceBrowserDidStopSearch")
+    if debugOutput { print("netServiceBrowserDidStopSearch") }
   }
 
   // MARK: ==== NetServiceBrowser delegate
 
   func netServiceDidResolveAddress(_ service: NetService) {
-    print("netService '\(service.name)' DidResolveAddress hostname:\(service.hostName ?? "<none>")")
+    if debugOutput { print("netService '\(service.name)' DidResolveAddress hostname:\(service.hostName ?? "<none>")") }
     pendingResolves -= 1
     if pendingResolves <= 0 {
       refreshMenu()
@@ -88,7 +94,7 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
 
   func netService(_ service: NetService, didNotResolve errorDict: [String : NSNumber])
   {
-    print("netService '\(service.name)' didNotResolve error:\(errorDict)")
+    if debugOutput { print("netService '\(service.name)' didNotResolve error:\(errorDict)") }
     services.remove(service)
     if pendingResolves <= 0 {
       refreshMenu()
@@ -100,11 +106,13 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
   // MARK: ==== Updating Menu
 
   func refreshMenu() {
-    for service in services {
-      print("- '\(service.name)'    -    '\(service.hostName ?? "<none>")'")
+    if debugOutput {
+      for service in services {
+        print("- '\(service.name)'    -    '\(service.hostName ?? "<none>")'")
+      }
     }
     // sort the services
-    let sortedServices : [NetService] = services.sorted(by: { $0.name < $1.name });
+    let sortedServices : [NetService] = services.sorted(by: { $0.name.caseInsensitiveCompare($1.name) == .orderedDescending });
     // remove the previous menu items
     for _ in 0..<statusMenu.items.count-numStaticMenuItems {
       statusMenu.removeItem(at: 0)
@@ -125,7 +133,7 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
 
   @objc func localSiteMenuItemSelected(_ sender:Any) {
     if let item = sender as? NSMenuItem, let service = item.representedObject as? NetService {
-      print("- '\(service.name)'    -    '\(service.hostName ?? "<none>")'")
+      if debugOutput { print("- '\(service.name)'    -    '\(service.hostName ?? "<none>")'") }
       if let urlstring = service.hostName {
         if let url = URL(string: "http://" + urlstring) {
           NSWorkspace.shared.open(url)
@@ -141,4 +149,7 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
     NSApplication.shared.terminate(self)
   }
 
+  @IBAction func aboutChosen(_ sender: Any) {
+    aboutWindow.showWindow(nil)
+  }
 }
