@@ -12,6 +12,8 @@ class AboutWindow: NSWindowController {
 
   @IBOutlet weak var iconImage: NSImageView!
 
+  @IBOutlet weak var versionLabel: NSTextField!
+  
   override var windowNibName : NSNib.Name! {
     return NSNib.Name(rawValue: "AboutWindow")
   }
@@ -23,6 +25,11 @@ class AboutWindow: NSWindowController {
     self.window?.center()
     self.window?.makeKeyAndOrderFront(nil)
     NSApp.activate(ignoringOtherApps: true)
+
+    if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+      versionLabel.stringValue = "v\(version)"
+    }
+
   }
 
 }

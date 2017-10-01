@@ -9,6 +9,7 @@
         <customObject id="-2" userLabel="File's Owner" customClass="AboutWindow" customModule="LocalSites" customModuleProvider="target">
             <connections>
                 <outlet property="iconImage" destination="cFK-cN-Qbk" id="VI6-pu-6fi"/>
+                <outlet property="versionLabel" destination="S2O-as-gdc" id="ZC5-gC-jE7"/>
                 <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
             </connections>
         </customObject>
@@ -17,14 +18,14 @@
         <window title="About LocalSites" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" animationBehavior="default" id="F0z-JX-Cv5">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="196" y="240" width="264" height="231"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <rect key="contentRect" x="196" y="240" width="264" height="258"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" wantsLayer="YES" id="se5-gp-TjO">
-                <rect key="frame" x="0.0" y="0.0" width="264" height="231"/>
+                <rect key="frame" x="0.0" y="0.0" width="264" height="258"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OZz-So-x0S">
-                        <rect key="frame" x="18" y="125" width="228" height="27"/>
+                        <rect key="frame" x="18" y="152" width="228" height="27"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" allowsUndo="NO" sendsActionOnEndEditing="YES" alignment="center" title="LocalSites" allowsEditingTextAttributes="YES" id="VvO-xf-YXP">
                             <font key="font" metaFont="system" size="22"/>
@@ -32,8 +33,22 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="S2O-as-gdc">
+                        <rect key="frame" x="18" y="127" width="228" height="17"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" allowsUndo="NO" sendsActionOnEndEditing="YES" alignment="center" title="?" allowsEditingTextAttributes="YES" id="hum-CB-9cy">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cFK-cN-Qbk">
+                        <rect key="frame" x="108" y="190" width="48" height="48"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="eyN-g5-3M9"/>
+                    </imageView>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BMs-9T-m2V">
-                        <rect key="frame" x="18" y="20" width="228" height="86"/>
+                        <rect key="frame" x="18" y="26" width="228" height="85"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <textFieldCell key="cell" allowsUndo="NO" sendsActionOnEndEditing="YES" alignment="center" allowsEditingTextAttributes="YES" id="tEC-dt-Jer">
                             <font key="font" metaFont="system"/>
@@ -44,17 +59,12 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cFK-cN-Qbk">
-                        <rect key="frame" x="108" y="163" width="48" height="48"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="eyN-g5-3M9"/>
-                    </imageView>
                 </subviews>
             </view>
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-AYu"/>
             </connections>
-            <point key="canvasLocation" x="23" y="141.5"/>
+            <point key="canvasLocation" x="23" y="155"/>
         </window>
     </objects>
 </document>

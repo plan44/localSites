@@ -145,8 +145,25 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
   @objc func localSiteMenuItemSelected(_ sender:Any) {
     if let item = sender as? NSMenuItem, let service = item.representedObject as? NetService {
       if debugOutput { print("- '\(service.name)'    -    '\(service.hostName ?? "<none>")'") }
-      if let urlstring = service.hostName {
-        if let url = URL(string: "http://" + urlstring) {
+      if let hoststring = service.hostName {
+        // check for path
+        var path = ""
+        if let txtData = service.txtRecordData() {
+          let txtRecords = NetService.dictionary(fromTXTRecord: txtData)
+          if let pathData = txtRecords["path"], let pathStr = String(data:pathData, encoding: .utf8) {
+            path = pathStr
+            if path.first! != "/" {
+              path.insert("/", at: path.startIndex)
+            }
+          }
+        }
+        // check for dot at end of hostName
+        var hostname = hoststring
+        if hostname.last! == "." {
+          hostname.remove(at: hostname.index(before: hostname.endIndex))
+        }
+        if let url = URL(string: "http://" + hostname + ":" + String(service.port) + path) {
+          if debugOutput { print("have default browser open '\(url)'") }
           NSWorkspace.shared.open(url)
         }
       }
