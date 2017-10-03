@@ -9,9 +9,10 @@
 import Cocoa
 import Foundation
 
-class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelegate {
+class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelegate, NSMenuDelegate {
 
   @IBOutlet weak var statusMenu: NSMenu!
+  @IBOutlet weak var operationModeItem: NSMenuItem!
 
   let debugOutput = false
 
@@ -24,8 +25,40 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
   var services: Set<NetService> = Set();
 
   var numStaticMenuItems = 0;
+  let headerMenuItems = 1;
+  var menuIsOpen = false;
 
   var pendingResolves = 0;
+
+  enum Browsers {
+    case system
+    case firefox
+    case chrome
+    case safari
+    case opera
+    case icab
+  }
+
+  var browser = Browsers.system;
+
+  let browserTexts = [
+    Browsers.system : "default browser",
+    Browsers.firefox : "Firefox",
+    Browsers.chrome : "Chrome",
+    Browsers.safari : "Safari",
+    Browsers.opera : "Opera",
+    Browsers.icab : "iCab"
+  ]
+
+  let browserBundleIds = [
+    Browsers.firefox : "org.mozilla.firefox",
+    Browsers.chrome : "com.google.Chrome",
+    Browsers.safari : "com.apple.Safari",
+    Browsers.opera : "com.operasoftware.Opera",
+    Browsers.icab : "de.icab.iCab"
+  ]
+
+
 
   override func awakeFromNib() {
     // Initialize the application
@@ -42,6 +75,42 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
     netServiceBrowser.delegate = self
     netServiceBrowser.searchForServices(ofType: "_http._tcp", inDomain: "local")
   }
+
+  func updateOpStatus() {
+    if let om = operationModeItem {
+      om.title = "Open in \(browserTexts[browser] ?? "unknown"):"
+    }
+  }
+
+
+  // MARK: ==== NSMenuDelegate
+
+  func menuWillOpen(_ menu: NSMenu) {
+    if let currentFlags = NSApp.currentEvent?.modifierFlags {
+      // - modifier watch
+      switch currentFlags.intersection(.deviceIndependentFlagsMask) {
+        case [.option] :
+          self.browser = Browsers.firefox
+        case [.option, .shift] :
+          self.browser = Browsers.icab
+        case [.control]:
+          self.browser = Browsers.chrome
+        case [.control, .shift]:
+          self.browser = Browsers.opera
+        case [.control, .option]:
+          self.browser = Browsers.safari
+        default:
+          self.browser = Browsers.system
+      }
+    }
+    updateOpStatus();
+    menuIsOpen = true;
+  }
+
+  func menuDidClose(_ menu: NSMenu) {
+    menuIsOpen = false;
+  }
+
 
   // MARK: ==== NetServiceBrowser delegate
 
@@ -114,7 +183,7 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
     }
     // remove the previous menu items
     for _ in 0..<statusMenu.items.count-numStaticMenuItems {
-      statusMenu.removeItem(at: 0)
+      statusMenu.removeItem(at: headerMenuItems)
     }
     // show new services
     if (services.count>0) {
@@ -127,7 +196,7 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
         item.target = self
         item.action = #selector(localSiteMenuItemSelected)
         item.isEnabled = service.hostName != nil
-        statusMenu.insertItem(item, at: 0)
+        statusMenu.insertItem(item, at: headerMenuItems)
       }
     }
     else {
@@ -135,7 +204,7 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
       let item = NSMenuItem();
       item.title = "No Bonjour websites found";
       item.isEnabled = false
-      statusMenu.insertItem(item, at: 0)
+      statusMenu.insertItem(item, at: headerMenuItems)
     }
   }
 
@@ -152,19 +221,26 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
           let txtRecords = NetService.dictionary(fromTXTRecord: txtData)
           if let pathData = txtRecords["path"], let pathStr = String(data:pathData, encoding: .utf8) {
             path = pathStr
-            if path.first! != "/" {
+            if (path.first ?? "/") != "/" {
               path.insert("/", at: path.startIndex)
             }
           }
         }
         // check for dot at end of hostName
         var hostname = hoststring
-        if hostname.last! == "." {
+        if (hostname.last ?? "_") == "." {
           hostname.remove(at: hostname.index(before: hostname.endIndex))
         }
         if let url = URL(string: "http://" + hostname + ":" + String(service.port) + path) {
-          if debugOutput { print("have default browser open '\(url)'") }
-          NSWorkspace.shared.open(url)
+          if let browserBundleId = browserBundleIds[browser] {
+            if debugOutput { print("have browser '\(browserBundleId)' open '\(url)'") }
+            NSWorkspace.shared.open([url], withAppBundleIdentifier: browserBundleId, options: NSWorkspace.LaunchOptions.default, additionalEventParamDescriptor: nil, launchIdentifiers: nil);
+          }
+          else {
+            // use system default browser
+            if debugOutput { print("have default browser open '\(url)'") }
+            NSWorkspace.shared.open(url)
+          }
         }
       }
     }

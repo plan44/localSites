@@ -16,11 +16,15 @@
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
         <customObject id="OO7-7k-kb7" customClass="SitesMenuController" customModule="LocalSites" customModuleProvider="target">
             <connections>
+                <outlet property="operationModeItem" destination="kW4-Mq-5v3" id="JJD-8b-LfH"/>
                 <outlet property="statusMenu" destination="ofd-Xw-a8y" id="MLF-oW-WfP"/>
             </connections>
         </customObject>
         <menu id="ofd-Xw-a8y">
             <items>
+                <menuItem title="open in default browser:" enabled="NO" id="kW4-Mq-5v3">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                </menuItem>
                 <menuItem isSeparatorItem="YES" id="rd9-Wv-GxQ"/>
                 <menuItem title="About…" id="qLI-Y7-nTG">
                     <modifierMask key="keyEquivalentModifierMask"/>
@@ -35,6 +39,9 @@
                     </connections>
                 </menuItem>
             </items>
+            <connections>
+                <outlet property="delegate" destination="OO7-7k-kb7" id="AYN-ts-qyF"/>
+            </connections>
         </menu>
     </objects>
 </document>
