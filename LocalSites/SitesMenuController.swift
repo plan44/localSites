@@ -9,7 +9,7 @@
 import Cocoa
 import Foundation
 
-class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelegate, NSMenuDelegate {
+class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelegate, NSMenuDelegate, PrefsWindowDelegate {
 
   @IBOutlet weak var statusMenu: NSMenu!
   @IBOutlet weak var operationModeItem: NSMenuItem!
@@ -19,6 +19,8 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
   let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength);
 
   var aboutWindow: AboutWindow!
+  var prefsWindow: PrefsWindow!
+
 
   let netServiceBrowser = NetServiceBrowser();
 
@@ -63,14 +65,15 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
   override func awakeFromNib() {
     // Initialize the application
     // - status bar item
-    let icon = NSImage(named: NSImage.Name(rawValue: "statusIcon"))
-    //icon?.isTemplate = true // just use shape, automatically black in normal and white in dark mode
-    statusItem.image = icon
+    updateIcon()
     statusItem.menu = statusMenu
     numStaticMenuItems = statusMenu.items.count
     refreshMenu() // make sure we display the "no bonjour found" item until bonjour finds something for the first time
     // - about window
     aboutWindow = AboutWindow()
+    // - prefs window
+    prefsWindow = PrefsWindow()
+    prefsWindow.delegate = self
     // - start network service search
     netServiceBrowser.delegate = self
     netServiceBrowser.searchForServices(ofType: "_http._tcp", inDomain: "local")
@@ -246,14 +249,34 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
     }
   }
 
+  // MARK: ==== prefs changes
+
+
+  func prefsDidUpdate() {
+    updateIcon()
+  }
+
+  func updateIcon() {
+    let defaults = UserDefaults.standard
+    let monochrome = defaults.bool(forKey: "monochromeIcon")
+    let icon = NSImage(named: NSImage.Name(rawValue: "statusIcon"))
+    icon?.isTemplate = monochrome
+    statusItem.image = icon
+  }
+
 
   // MARK: ==== UI handlers
 
-  @IBAction func quitChosen(_ sender: Any) {
+  @IBAction func quitChosen(_ sender: NSMenuItem) {
     NSApplication.shared.terminate(self)
   }
 
-  @IBAction func aboutChosen(_ sender: Any) {
+  @IBAction func aboutChosen(_ sender: NSMenuItem) {
     aboutWindow.showWindow(nil)
   }
+
+  @IBAction func prefsChosen(_ sender: NSMenuItem) {
+    prefsWindow.showWindow(nil)
+  }
+
 }

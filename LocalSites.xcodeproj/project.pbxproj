@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		ED637BDB1F78E5EF008AAD3A /* AboutWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED637BD91F78E5EE008AAD3A /* AboutWindow.swift */; };
 		ED637BDC1F78E5EF008AAD3A /* AboutWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = ED637BDA1F78E5EF008AAD3A /* AboutWindow.xib */; };
+		EDDAA7711F91581C00D69525 /* PrefsWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDAA76F1F91581C00D69525 /* PrefsWindow.swift */; };
+		EDDAA7721F91581C00D69525 /* PrefsWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDDAA7701F91581C00D69525 /* PrefsWindow.xib */; };
 		EDF1E3CF1F77FE3700D02C38 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDF1E3CE1F77FE3700D02C38 /* AppDelegate.swift */; };
 		EDF1E3D11F77FE3700D02C38 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EDF1E3D01F77FE3700D02C38 /* Assets.xcassets */; };
 		EDF1E3D41F77FE3700D02C38 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDF1E3D21F77FE3700D02C38 /* MainMenu.xib */; };
@@ -19,6 +21,8 @@
 		ED637BD91F78E5EE008AAD3A /* AboutWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutWindow.swift; sourceTree = "<group>"; };
 		ED637BDA1F78E5EF008AAD3A /* AboutWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AboutWindow.xib; sourceTree = "<group>"; };
 		ED637BDD1F790B5D008AAD3A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		EDDAA76F1F91581C00D69525 /* PrefsWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefsWindow.swift; sourceTree = "<group>"; };
+		EDDAA7701F91581C00D69525 /* PrefsWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PrefsWindow.xib; sourceTree = "<group>"; };
 		EDF1E3CB1F77FE3700D02C38 /* LocalSites.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LocalSites.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDF1E3CE1F77FE3700D02C38 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		EDF1E3D01F77FE3700D02C38 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -63,6 +67,8 @@
 				EDF1E3CE1F77FE3700D02C38 /* AppDelegate.swift */,
 				EDF1E3D21F77FE3700D02C38 /* MainMenu.xib */,
 				EDF1E3DC1F780BF500D02C38 /* SitesMenuController.swift */,
+				EDDAA76F1F91581C00D69525 /* PrefsWindow.swift */,
+				EDDAA7701F91581C00D69525 /* PrefsWindow.xib */,
 				ED637BD91F78E5EE008AAD3A /* AboutWindow.swift */,
 				ED637BDA1F78E5EF008AAD3A /* AboutWindow.xib */,
 				EDF1E3D51F77FE3700D02C38 /* Info.plist */,
@@ -130,6 +136,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDDAA7721F91581C00D69525 /* PrefsWindow.xib in Resources */,
 				EDF1E3D11F77FE3700D02C38 /* Assets.xcassets in Resources */,
 				EDF1E3D41F77FE3700D02C38 /* MainMenu.xib in Resources */,
 				ED637BDC1F78E5EF008AAD3A /* AboutWindow.xib in Resources */,
@@ -143,6 +150,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDDAA7711F91581C00D69525 /* PrefsWindow.swift in Sources */,
 				EDF1E3CF1F77FE3700D02C38 /* AppDelegate.swift in Sources */,
 				EDF1E3DD1F780BF500D02C38 /* SitesMenuController.swift in Sources */,
 				ED637BDB1F78E5EF008AAD3A /* AboutWindow.swift in Sources */,

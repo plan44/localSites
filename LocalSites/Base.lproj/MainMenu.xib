@@ -32,6 +32,12 @@
                         <action selector="aboutChosen:" target="OO7-7k-kb7" id="9yl-Y9-MTo"/>
                     </connections>
                 </menuItem>
+                <menuItem title="Preferences..." id="jQ6-Hw-OJF">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="prefsChosen:" target="OO7-7k-kb7" id="ysW-Mr-whb"/>
+                    </connections>
+                </menuItem>
                 <menuItem title="Quit" id="nWG-5C-IX4">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
