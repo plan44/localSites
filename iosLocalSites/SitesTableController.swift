@@ -120,6 +120,14 @@ class SitesTableController: UITableViewController, NetServiceBrowserDelegate, Ne
   }
 
 
+//  override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat
+//  {
+//    if section == 0 { return 60 }
+//    return 0;
+//  }
+//
+//
+
   // create a cell for each table view row
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
@@ -157,7 +165,7 @@ class SitesTableController: UITableViewController, NetServiceBrowserDelegate, Ne
       if let url = URL(string: "http://" + hostname + ":" + String(service.port) + path) {
         // use system default browser
         if debugOutput { print("have default browser open '\(url)'") }
-        UIApplication.shared.open(url)
+        UIApplication.shared.openURL(url)
       }
     }
   }

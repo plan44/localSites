@@ -273,7 +273,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = RQ57RZ75M9;
 				INFOPLIST_FILE = iosLocalSites/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = ch.plan44.iosLocalSites;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -294,7 +294,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = RQ57RZ75M9;
 				INFOPLIST_FILE = iosLocalSites/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = ch.plan44.iosLocalSites;
 				PRODUCT_NAME = "$(TARGET_NAME)";
