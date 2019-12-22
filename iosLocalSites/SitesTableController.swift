@@ -10,6 +10,7 @@ import UIKit
 
 class SitesTableController: UITableViewController, NetServiceBrowserDelegate, NetServiceDelegate {
 
+  @IBOutlet weak var noSitesLabel: UILabel!
   let debugOutput = true
 
   let netServiceBrowser = NetServiceBrowser();
@@ -22,13 +23,34 @@ class SitesTableController: UITableViewController, NetServiceBrowserDelegate, Ne
   // cell reuse id (cells that scroll out of view can be reused)
   let cellReuseIdentifier = "localSiteCell"
 
+
+  func restartSearch()
+  {
+    netServiceBrowser.stop()
+    services.removeAll()
+    netServiceBrowser.searchForServices(ofType: "_http._tcp", inDomain: "local")
+  }
+
+
+  @objc func didBecomeActive(_ notification:Notification)
+  {
+    restartSearch();
+  }
+
+
   override func viewDidLoad() {
     super.viewDidLoad()
-//    // - register table cell
-//    self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellReuseIdentifier)
+    // - observe global app did become active event
+    NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
     // - start network service search
     netServiceBrowser.delegate = self
-    netServiceBrowser.searchForServices(ofType: "_http._tcp", inDomain: "local")
+    restartSearch();
+  }
+
+
+  deinit
+  {
+    NotificationCenter.default.removeObserver(self);
   }
 
 
@@ -105,6 +127,7 @@ class SitesTableController: UITableViewController, NetServiceBrowserDelegate, Ne
 
   func refreshTable()
   {
+    noSitesLabel.isHidden = services.count > 0
     sortedServices = services.sorted(by: { $0.name.caseInsensitiveCompare($1.name) == .orderedDescending });
     tableView.reloadData();
   }
@@ -119,14 +142,6 @@ class SitesTableController: UITableViewController, NetServiceBrowserDelegate, Ne
     else { return 0 }
   }
 
-
-//  override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat
-//  {
-//    if section == 0 { return 60 }
-//    return 0;
-//  }
-//
-//
 
   // create a cell for each table view row
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

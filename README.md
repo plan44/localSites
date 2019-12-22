@@ -13,11 +13,15 @@ So I took the opportunity to create my very first app in Swift. Fortunately, I c
 
 The result is LocalSites, a small status bar app which simply lists all `_http._tcp` type services in the `local` domain, and opens them in ~~the default~~ a browser of you choice (modifier keys, see *About...* box) when selected.
 
+In 2019, I also added an iOS target to the project, providing the same functionality (only Safari..) on iPhones and iPads
+
+
 ## History
 
 - **1.0** first version
 - **1.1** added options to choose different browsers by holding down modifier keys (option, ctrl, shift) before opening the menu. With no modifier keys, sites still open in the system's default browser.
 - **1.2** made run on 10.11 El Capitan (just set 10.11 as deployment target in XCode project), added preference to show a monochrome menu icon instead of the blue one.
+- **1.0 for iOS** provides the same functionality on iOS - just lists all local bonjour websites and allows opening them with iOS Safari
 
 ## License
 
