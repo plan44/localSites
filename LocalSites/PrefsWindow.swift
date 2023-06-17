@@ -19,7 +19,7 @@ class PrefsWindow: NSWindowController, NSWindowDelegate {
   var delegate: PrefsWindowDelegate?
 
   override var windowNibName : NSNib.Name! {
-    return NSNib.Name(rawValue: "PrefsWindow")
+    return NSNib.Name("PrefsWindow")
   }
 
   override func windowDidLoad() {
