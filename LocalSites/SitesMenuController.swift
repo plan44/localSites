@@ -76,7 +76,7 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
     prefsWindow.delegate = self
     // - start network service search
     netServiceBrowser.delegate = self
-    netServiceBrowser.searchForServices(ofType: "_http._tcp", inDomain: "local")
+    netServiceBrowser.searchForServices(ofType: "_http._tcp", inDomain: "")
   }
 
   func updateOpStatus() {
