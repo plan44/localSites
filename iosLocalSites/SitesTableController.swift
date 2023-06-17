@@ -28,7 +28,9 @@ class SitesTableController: UITableViewController, NetServiceBrowserDelegate, Ne
   {
     netServiceBrowser.stop()
     services.removeAll()
-    netServiceBrowser.searchForServices(ofType: "_http._tcp", inDomain: "local")
+    // Note: on iOS, the only way to make this work seems to be passing empty string to inDomain:
+    //   And NOT using searchForBrowsableDomains() -> didFindDomain:
+    netServiceBrowser.searchForServices(ofType: "_http._tcp", inDomain: "")
   }
 
 
