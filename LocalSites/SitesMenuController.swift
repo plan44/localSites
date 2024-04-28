@@ -192,6 +192,18 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
     if (services.count>0) {
       // sort the services
       let sortedServices : [NetService] = services.sorted(by: { $0.name.caseInsensitiveCompare($1.name) == .orderedDescending });
+        // If there are services discovered in more than one browsing domain, group items by domain
+        let byDomain = servicesByDomain(services)
+        if byDomain.keys.count > 1 {
+          var separators = [NSMenuItem]()
+          byDomain.keys.sorted(by: >).forEach { domain in
+            statusMenu.insertItem(NSMenuItem.separator(), at: headerMenuItems)
+            let domainItem = NSMenuItem(title: domain, action: nil, keyEquivalent: "")
+            domainItem.isEnabled = false
+            statusMenu.insertItem(domainItem, at: headerMenuItems)
+          }
+        }
+        
       for service in sortedServices {
         let item = NSMenuItem();
         item.title = service.name;
@@ -199,7 +211,12 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
         item.target = self
         item.action = #selector(localSiteMenuItemSelected)
         item.isEnabled = service.hostName != nil
-        statusMenu.insertItem(item, at: headerMenuItems)
+        let index = statusMenu.indexOfItem(withTitle: service.domain)
+        if index != -1 {
+          statusMenu.insertItem(item, at: index+1)
+        } else {
+          statusMenu.insertItem(item, at: headerMenuItems)
+        }
       }
     }
     else {
@@ -211,6 +228,14 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
     }
   }
 
+  private func servicesByDomain(_ services: Set<NetService>) -> [String:[NetService]] {
+    services.reduce(into: [String:[NetService]]() ) { dict, service in
+      if dict[service.domain] == nil {
+        dict[service.domain] = [NetService]()
+      }
+      dict[service.domain]?.append(service)
+    }
+  }
 
   // MARK: ==== Handling menu actions
 
