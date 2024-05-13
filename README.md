@@ -22,6 +22,8 @@ In 2019, I also added an iOS target to the project, providing the same functiona
 - **1.1** added options to choose different browsers by holding down modifier keys (option, ctrl, shift) before opening the menu. With no modifier keys, sites still open in the system's default browser.
 - **1.2** made run on 10.11 El Capitan (just set 10.11 as deployment target in XCode project), added preference to show a monochrome menu icon instead of the blue one.
 - **1.0 for iOS** provides the same functionality on iOS - just lists all local bonjour websites and allows opening them with iOS Safari
+- **1.3 for macOS and 1.2 for iOS**  converted to Swift 5
+- **1.4 for macOS** group menu entries by domain (contribution by @gmw, thanks!)
 
 ## License
 
