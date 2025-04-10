@@ -18,20 +18,47 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
 
   let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength);
 
+  struct DiscoveredService: Hashable {
+        let name: String
+        let domain: String
+        let type: String
+        let hostName: String
+        let port: Int
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(name)
+            hasher.combine(domain)
+            hasher.combine(type)
+            hasher.combine(hostName)
+            hasher.combine(port)
+        }
+
+        static func == (lhs: DiscoveredService, rhs: DiscoveredService) -> Bool {
+            return lhs.name == rhs.name &&
+                   lhs.domain == rhs.domain &&
+                   lhs.type == rhs.type &&
+                   lhs.hostName == rhs.hostName &&
+                   lhs.port == rhs.port
+        }
+  }
+  
   var aboutWindow: AboutWindow!
+  let domainToBrowse = ""
   var prefsWindow: PrefsWindow!
-
-
-  let netServiceBrowser = NetServiceBrowser();
-
+  
+  var netServiceBrowsers: [NetServiceBrowser] = []
+  let servicesToBrowse = ["_http._tcp.", "_https._tcp."]
+    
+  var monitoredServices: [NetService] = []
   var services: Set<NetService> = Set();
+  var displayedServices: Set<DiscoveredService> = []
 
   var numStaticMenuItems = 0;
   let headerMenuItems = 1;
   var menuIsOpen = false;
 
   var pendingResolves = 0;
-
+    
   enum Browsers {
     case system
     case firefox
@@ -62,22 +89,28 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
 
 
 
-  override func awakeFromNib() {
-    // Initialize the application
-    // - status bar item
-    updateIcon()
-    statusItem.menu = statusMenu
-    numStaticMenuItems = statusMenu.items.count
-    refreshMenu() // make sure we display the "no bonjour found" item until bonjour finds something for the first time
-    // - about window
-    aboutWindow = AboutWindow()
-    // - prefs window
-    prefsWindow = PrefsWindow()
-    prefsWindow.delegate = self
-    // - start network service search
-    netServiceBrowser.delegate = self
-    netServiceBrowser.searchForServices(ofType: "_http._tcp", inDomain: "")
-  }
+    override func awakeFromNib() {
+        // Initialize the application
+        // - status bar item
+        updateIcon()
+        statusItem.menu = statusMenu
+        numStaticMenuItems = statusMenu.items.count
+        refreshMenu() // make sure we display the "no bonjour found" item until bonjour finds something for the first time
+        // - about window
+        aboutWindow = AboutWindow()
+        // - prefs window
+        prefsWindow = PrefsWindow()
+        prefsWindow.delegate = self
+        // - start network service search
+   //     netServiceBrowser.delegate = self
+   //     netServiceBrowser.searchForServices(ofType: "_http._tcp", inDomain: "")
+        servicesToBrowse.forEach {
+                let netServiceBrowser = NetServiceBrowser()
+                netServiceBrowser.delegate = self
+                netServiceBrowser.searchForServices(ofType: $0, inDomain: domainToBrowse)
+                netServiceBrowsers.append(netServiceBrowser) // retain!
+            }
+    }
 
   func updateOpStatus() {
     if let om = operationModeItem {
@@ -117,20 +150,28 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
 
   // MARK: ==== NetServiceBrowser delegate
 
-  func netServiceBrowser(_: NetServiceBrowser , didFind service: NetService, moreComing: Bool) {
-    if debugOutput { print("didFind '\(service.name)', domain:\(service.domain), hostname:\(service.hostName ?? "<none>") - \(moreComing ? "more coming" : "all done")") }
-    services.insert(service)
-    service.delegate = self
-    service.resolve(withTimeout:2)
-    pendingResolves += 1
-    if !moreComing {
-      refreshMenu()
+    func netServiceBrowser(_: NetServiceBrowser , didFind service: NetService, moreComing: Bool) {
+        if debugOutput { print("didFind '\(service.name)', domain:\(service.domain), hostname:\(service.hostName ?? "<none>") - \(moreComing ? "more coming" : "all done")") }
+        //      services.insert(service)
+        //      service.delegate = self
+        //      service.resolve(withTimeout:2)
+        //      pendingResolves += 1
+        
+        servicesToBrowse // Browse http and https
+            .map { type -> NetService in
+                let monitoredService = NetService(domain: service.domain, type: type, name: service.name)
+                monitoredService.delegate = self
+                return monitoredService
+            }
+            .forEach { monitoredService in
+                monitoredService.resolve(withTimeout: 2)
+                services.insert(monitoredService)
+            }
     }
-  }
 
   func netServiceBrowser(_:NetServiceBrowser, didRemove service: NetService, moreComing: Bool)
   {
-    if debugOutput { print("didRemove '\(service.name)' domain:\(service.domain), hostname:\(service.hostName ?? "<none>") - \(moreComing ? "more coming" : "all done")") }
+   if debugOutput { print("didRemove '\(service.name)' domain:\(service.domain), hostname:\(service.hostName ?? "<none>") - \(moreComing ? "more coming" : "all done")") }
     services.remove(service)
     if !moreComing {
       refreshMenu()
@@ -157,7 +198,26 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
 
   func netServiceDidResolveAddress(_ service: NetService) {
     if debugOutput { print("netService '\(service.name)' DidResolveAddress hostname:\(service.hostName ?? "<none>")") }
-    pendingResolves -= 1
+      
+      guard let hostName = service.hostName else { return }
+
+       let resolved = DiscoveredService(
+        name: service.name,
+        domain: service.domain,
+        type: service.type,
+        hostName: hostName,
+        port: service.port
+       )
+
+       // Avoid duplicates
+       if displayedServices.contains(resolved) {
+           return
+       }
+
+      displayedServices.insert(resolved)
+      services.insert(service) // keep the NetService instance - just incase
+
+      pendingResolves -= 1
     if pendingResolves <= 0 {
       refreshMenu()
       pendingResolves = 0
@@ -259,7 +319,11 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
         if (hostname.last ?? "_") == "." {
           hostname.remove(at: hostname.index(before: hostname.endIndex))
         }
-        if let url = URL(string: "http://" + hostname + ":" + String(service.port) + path) {
+//        if let url = URL(string: "http://" + hostname + ":" + String(service.port) + path) {
+          let typeComponents = service.type.components(separatedBy: ".")
+          let scheme = typeComponents.first?.replacingOccurrences(of: "_", with: "") ?? "http"
+          let urlString = "\(scheme)://\(hostname):\(service.port)\(path)"
+          if let url = URL(string: urlString) {
           if let browserBundleId = browserBundleIds[browser] {
             if debugOutput { print("have browser '\(browserBundleId)' open '\(url)'") }
             NSWorkspace.shared.open([url], withAppBundleIdentifier: browserBundleId, options: NSWorkspace.LaunchOptions.default, additionalEventParamDescriptor: nil, launchIdentifiers: nil);
