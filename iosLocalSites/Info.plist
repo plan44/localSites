@@ -4,7 +4,9 @@
 <dict>
 	<key>NSBonjourServices</key>
 	<array>
-    <string>_http._tcp</string>
+		<string>_http._tcp.</string>
+		<string>_https._tcp.</string>
+		<string>_http-alt._tcp.</string>
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>To look for websites in the local network using DNS-SD</string>

@@ -13,7 +13,10 @@ class SitesTableController: UITableViewController, NetServiceBrowserDelegate, Ne
   @IBOutlet weak var noSitesLabel: UILabel!
   let debugOutput = true
 
-  let netServiceBrowser = NetServiceBrowser();
+  var netServiceBrowsers: [NetServiceBrowser] = []
+
+  let domainToBrowse = ""
+  let servicesToBrowse = ["_http._tcp.", "_https._tcp.", "_http-alt._tcp."]
 
   var services: Set<NetService> = Set();
   var sortedServices: [NetService] = Array();
@@ -26,11 +29,18 @@ class SitesTableController: UITableViewController, NetServiceBrowserDelegate, Ne
 
   func restartSearch()
   {
-    netServiceBrowser.stop()
+    netServiceBrowsers.forEach { $0.stop() }
     services.removeAll()
+    netServiceBrowsers.removeAll()
     // Note: on iOS, the only way to make this work seems to be passing empty string to inDomain:
     //   And NOT using searchForBrowsableDomains() -> didFindDomain:
-    netServiceBrowser.searchForServices(ofType: "_http._tcp", inDomain: "")
+    // - start network service search
+    servicesToBrowse.forEach {
+      let netServiceBrowser = NetServiceBrowser()
+      netServiceBrowser.delegate = self
+      netServiceBrowser.searchForServices(ofType: $0, inDomain: domainToBrowse)
+      netServiceBrowsers.append(netServiceBrowser) // retain!
+    }
   }
 
 
@@ -45,7 +55,6 @@ class SitesTableController: UITableViewController, NetServiceBrowserDelegate, Ne
     // - observe global app did become active event
     NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
     // - start network service search
-    netServiceBrowser.delegate = self
     restartSearch();
   }
 
@@ -65,7 +74,7 @@ class SitesTableController: UITableViewController, NetServiceBrowserDelegate, Ne
   // MARK: ==== NetServiceBrowser delegate
 
   func netServiceBrowser(_: NetServiceBrowser , didFind service: NetService, moreComing: Bool) {
-    if debugOutput { print("didFind '\(service.name)', domain:\(service.domain), hostname:\(service.hostName ?? "<none>") - \(moreComing ? "more coming" : "all done")") }
+    if debugOutput { print("didFind '\(service.name)', domain:\(service.domain), type:\(service.type), hostname:\(service.hostName ?? "<none>") - \(moreComing ? "more coming" : "all done")") }
     services.insert(service)
     service.delegate = self
     service.resolve(withTimeout:2)
@@ -130,7 +139,7 @@ class SitesTableController: UITableViewController, NetServiceBrowserDelegate, Ne
   func refreshTable()
   {
     noSitesLabel.isHidden = services.count > 0
-    sortedServices = services.sorted(by: { $0.name.caseInsensitiveCompare($1.name) == .orderedDescending });
+    sortedServices = services.sorted(by: { $0.name.caseInsensitiveCompare($1.name) == .orderedAscending });
     tableView.reloadData();
   }
 
@@ -150,9 +159,12 @@ class SitesTableController: UITableViewController, NetServiceBrowserDelegate, Ne
 
     // create a new cell if needed or reuse an old one
     let cell:UITableViewCell = (self.tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier) as UITableViewCell?)!
-  
+
     // set the text from the data model
-    cell.textLabel?.text = self.sortedServices[indexPath.row].name
+    let service = self.sortedServices[indexPath.row]
+    let typeComponents = service.type.components(separatedBy: ".")
+    let scheme = typeComponents.first?.replacingOccurrences(of: "_", with: "") ?? "http"
+    cell.textLabel?.text = "\(service.name) \(scheme=="https" ? "🔒" : (scheme=="http" ? "" : "[⚠️\(scheme)]"))";
 
     return cell
   }
@@ -161,7 +173,7 @@ class SitesTableController: UITableViewController, NetServiceBrowserDelegate, Ne
   // method to run when table view cell is tapped
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     let service = self.sortedServices[indexPath.row]
-    if debugOutput { print("- '\(service.name)'    -    '\(service.hostName ?? "<none>")'") }
+    if debugOutput { print("- '\(service.name)' [\(service.type)]'    -    '\(service.hostName ?? "<none>")'") }
     if let hoststring = service.hostName {
       // check for path
       var path = ""
@@ -179,10 +191,19 @@ class SitesTableController: UITableViewController, NetServiceBrowserDelegate, Ne
       if (hostname.last ?? "_") == "." {
         hostname.remove(at: hostname.index(before: hostname.endIndex))
       }
-      if let url = URL(string: "http://" + hostname + ":" + String(service.port) + path) {
+      let typeComponents = service.type.components(separatedBy: ".")
+      let appprotocol = typeComponents.first?.replacingOccurrences(of: "_", with: "") ?? "http"
+      let scheme = appprotocol=="http-alt" ? "http" : appprotocol;
+      let urlString = "\(scheme)://\(hostname):\(service.port)\(path)"
+      if let url = URL(string: urlString) {
         // use system default browser
         if debugOutput { print("have default browser open '\(url)'") }
-        UIApplication.shared.openURL(url)
+        if #available(iOS 10.0, *) {
+          UIApplication.shared.open(url)
+        }
+        else {
+          UIApplication.shared.openURL(url)
+        }
       }
     }
   }
