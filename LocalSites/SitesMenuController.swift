@@ -217,7 +217,7 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
         let item = NSMenuItem();
         let typeComponents = service.type.components(separatedBy: ".")
         let scheme = typeComponents.first?.replacingOccurrences(of: "_", with: "") ?? "http"
-        item.title = "\(service.name) \(scheme=="https" ? "🔒" : (scheme=="http" ? "" : "(⚠️\(scheme))"))";
+        item.title = "\(service.name) \(scheme=="https" ? "🔒" : (scheme=="http" ? "" : "[⚠️\(scheme)]"))";
         item.representedObject = service;
         item.target = self
         item.action = #selector(localSiteMenuItemSelected)
