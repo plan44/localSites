@@ -22,7 +22,10 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
   var prefsWindow: PrefsWindow!
 
 
-  let netServiceBrowser = NetServiceBrowser();
+  var netServiceBrowsers: [NetServiceBrowser] = []
+
+  let domainToBrowse = ""
+  let servicesToBrowse = ["_http._tcp.", "_https._tcp.", "_http-alt._tcp."]
 
   var services: Set<NetService> = Set();
 
@@ -31,6 +34,8 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
   var menuIsOpen = false;
 
   var pendingResolves = 0;
+
+  var debugPublish: NetService?;
 
   enum Browsers {
     case system
@@ -75,8 +80,12 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
     prefsWindow = PrefsWindow()
     prefsWindow.delegate = self
     // - start network service search
-    netServiceBrowser.delegate = self
-    netServiceBrowser.searchForServices(ofType: "_http._tcp", inDomain: "")
+    servicesToBrowse.forEach {
+      let netServiceBrowser = NetServiceBrowser()
+      netServiceBrowser.delegate = self
+      netServiceBrowser.searchForServices(ofType: $0, inDomain: domainToBrowse)
+      netServiceBrowsers.append(netServiceBrowser) // retain!
+    }
   }
 
   func updateOpStatus() {
@@ -118,7 +127,7 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
   // MARK: ==== NetServiceBrowser delegate
 
   func netServiceBrowser(_: NetServiceBrowser , didFind service: NetService, moreComing: Bool) {
-    if debugOutput { print("didFind '\(service.name)', domain:\(service.domain), hostname:\(service.hostName ?? "<none>") - \(moreComing ? "more coming" : "all done")") }
+    if debugOutput { print("didFind '\(service.name)', domain:\(service.domain), type:\(service.type), hostname:\(service.hostName ?? "<none>") - \(moreComing ? "more coming" : "all done")") }
     services.insert(service)
     service.delegate = self
     service.resolve(withTimeout:2)
@@ -179,7 +188,7 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
   // MARK: ==== Updating Menu
 
   func refreshMenu() {
-    if debugOutput {
+    if false && debugOutput {
       for service in services {
         print("- '\(service.name)'    -    '\(service.hostName ?? "<none>")'")
       }
@@ -206,7 +215,9 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
 
       for service in sortedServices {
         let item = NSMenuItem();
-        item.title = service.name;
+        let typeComponents = service.type.components(separatedBy: ".")
+        let scheme = typeComponents.first?.replacingOccurrences(of: "_", with: "") ?? "http"
+        item.title = "\(service.name) \(scheme=="https" ? "🔒" : (scheme=="http" ? "" : "(⚠️\(scheme))"))";
         item.representedObject = service;
         item.target = self
         item.action = #selector(localSiteMenuItemSelected)
@@ -259,7 +270,11 @@ class SitesMenuController: NSObject, NetServiceBrowserDelegate, NetServiceDelega
         if (hostname.last ?? "_") == "." {
           hostname.remove(at: hostname.index(before: hostname.endIndex))
         }
-        if let url = URL(string: "http://" + hostname + ":" + String(service.port) + path) {
+        let typeComponents = service.type.components(separatedBy: ".")
+        let appprotocol = typeComponents.first?.replacingOccurrences(of: "_", with: "") ?? "http"
+        let scheme = appprotocol=="http-alt" ? "http" : appprotocol;
+        let urlString = "\(scheme)://\(hostname):\(service.port)\(path)"
+        if let url = URL(string: urlString) {
           if let browserBundleId = browserBundleIds[browser] {
             if debugOutput { print("have browser '\(browserBundleId)' open '\(url)'") }
             NSWorkspace.shared.open([url], withAppBundleIdentifier: browserBundleId, options: NSWorkspace.LaunchOptions.default, additionalEventParamDescriptor: nil, launchIdentifiers: nil);
